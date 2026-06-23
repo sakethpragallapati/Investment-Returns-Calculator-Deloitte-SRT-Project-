@@ -148,7 +148,7 @@
 
 .search-box input {
   width: 100%;
-  padding: 11px 16px 11px 42px;
+  padding: 11px 16px 11px 42px !important;
   background: var(--bg-input);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);

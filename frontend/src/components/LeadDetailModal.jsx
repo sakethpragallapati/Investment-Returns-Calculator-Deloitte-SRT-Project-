@@ -1,4 +1,7 @@
-import { X } from 'lucide-react';
+import { useRef } from 'react';
+import { X, Printer } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
+import ReportTemplate from './ReportTemplate';
 import './LeadDetailModal.css';
 
 function fmt(n) {
@@ -16,8 +19,14 @@ function formatDate(iso) {
 }
 
 export default function LeadDetailModal({ lead, onClose }) {
+  const reportRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: reportRef,
+    documentTitle: `Subsidy_Report_${lead?.company?.replace(/\s+/g, '_') || 'Draft'}`,
+  });
+
   if (!lead) return null;
-  const c = lead.calculation;
+  const c = lead.calculation || {};
 
   // Derived values
   const coreUncapped = (c.base_subsidy || 0) + (c.mega_bonus || 0);
@@ -48,12 +57,18 @@ export default function LeadDetailModal({ lead, onClose }) {
             </p>
             <p className="modal-date">Submitted {formatDate(lead.created_at)}</p>
           </div>
-          <button className="modal-close" onClick={onClose} id="modal-close">
-            <X size={20} />
-          </button>
+          <div className="modal-header-actions">
+            <button className="btn-modal-print" onClick={() => handlePrint()} title="Download PDF Report">
+              <Printer size={16} />
+              <span>Export PDF</span>
+            </button>
+            <button className="modal-close" onClick={onClose} id="modal-close">
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        {!c ? (
+        {!lead.calculation ? (
           <div className="modal-empty">No calculation data available.</div>
         ) : (
           <div className="modal-body">
@@ -215,7 +230,7 @@ export default function LeadDetailModal({ lead, onClose }) {
                   </div>
                 ) : c.anchor_units ? (
                   <div className="modal-calc-line">
-                    🏭 Anchor Unit: <strong>{c.anchor_units.replace(/_/g, ' ')}</strong> — <strong>₹{fmt(c.multiplier_bonus)} Cr</strong>
+                    🏭 Anchor Units: <strong>{c.anchor_units}</strong> — <strong>₹{fmt(c.multiplier_bonus)} Cr</strong>
                   </div>
                 ) : (
                   <div className="modal-calc-line muted">No additional incentive category was selected.</div>
@@ -242,6 +257,11 @@ export default function LeadDetailModal({ lead, onClose }) {
 
           </div>
         )}
+      </div>
+
+      {/* Hidden component specifically for printing */}
+      <div style={{ display: 'none' }}>
+        <ReportTemplate ref={reportRef} calculationData={c} dataType="api" leadInfo={lead} />
       </div>
     </div>
   );

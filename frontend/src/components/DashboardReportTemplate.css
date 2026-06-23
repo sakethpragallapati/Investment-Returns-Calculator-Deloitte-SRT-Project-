@@ -1,0 +1,184 @@
+/* ═══ Dashboard Print Report Styles ═══ */
+
+.dash-report-container {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #111;
+  background: #fff;
+  padding: 40px;
+  line-height: 1.5;
+  font-size: 11pt;
+}
+
+/* Header */
+.dash-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #000;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.dash-report-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.dash-logo-box {
+  background: #86bc25; /* Deloitte Green */
+  color: #fff;
+  font-weight: 800;
+  padding: 6px 12px;
+  font-size: 16pt;
+  letter-spacing: -0.5px;
+}
+
+.dash-logo-text {
+  font-size: 14pt;
+  color: #333;
+  font-weight: 600;
+}
+
+.dash-report-title-area {
+  text-align: right;
+}
+
+.dash-report-title {
+  font-size: 20pt;
+  font-weight: 700;
+  margin: 0 0 5px;
+  color: #000;
+}
+
+.dash-report-subtitle {
+  font-size: 11pt;
+  color: #555;
+  margin: 0;
+}
+
+.dash-report-meta {
+  margin-bottom: 30px;
+  font-size: 10pt;
+  color: #555;
+}
+
+/* Sections */
+.dash-report-section {
+  margin-bottom: 40px;
+}
+
+.dash-report-section h2 {
+  font-size: 14pt;
+  font-weight: 700;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+/* Executive Summary */
+.dash-highlight-section {
+  background: #f4f6f8;
+  padding: 24px;
+  border-radius: 4px;
+}
+
+.dash-highlight-section h2 {
+  border-bottom: none;
+  margin-bottom: 15px;
+  padding: 0;
+}
+
+.dash-exec-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.dash-exec-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-exec-label {
+  font-size: 9pt;
+  text-transform: uppercase;
+  color: #666;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.dash-exec-value {
+  font-size: 18pt;
+  font-weight: 800;
+  color: #222;
+}
+
+.dash-exec-value.primary {
+  color: #86bc25;
+}
+
+/* Tables */
+.dash-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dash-report-table th, .dash-report-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 10pt;
+}
+
+.dash-report-table th {
+  background: #f8f9fa;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  font-size: 9pt;
+  border-bottom: 2px solid #ccc;
+}
+
+.amount {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.primary-amount {
+  font-weight: 700;
+  color: #059669;
+}
+
+.muted {
+  color: #777;
+  font-size: 9pt;
+}
+
+/* Footer */
+.dash-report-footer {
+  margin-top: 60px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.dash-footer-brand {
+  text-align: center;
+  font-size: 8pt;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Printing rules */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+  
+  body {
+    background: #fff;
+  }
+}

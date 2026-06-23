@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { Printer } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
 import { fmt } from '../utils/calculator';
 import { saveLead } from '../services/api';
+import ReportTemplate from './ReportTemplate';
 import './Results.css';
 
 export default function Results({ result, formData, onRecalculate }) {
   const r = result;
+  const reportRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: reportRef,
+    documentTitle: 'Capital_Subsidy_Estimate',
+  });
 
   return (
     <div className="results animate-in">
@@ -283,11 +291,19 @@ export default function Results({ result, formData, onRecalculate }) {
       {/* ═══ SAVE TO DASHBOARD ═══ */}
       <SaveToDashboard formData={formData} />
 
-      {/* ═══ RECALCULATE ═══ */}
-      <div className="recalculate-row">
+      {/* ═══ ACTIONS ═══ */}
+      <div className="results-actions-row">
+        <button className="btn btn-primary" onClick={() => handlePrint()}>
+          <Printer size={16} /> Download PDF Report
+        </button>
         <button className="btn btn-recalculate" onClick={onRecalculate}>
           <span className="btn-icon">↺</span> Modify Inputs & Recalculate
         </button>
+      </div>
+
+      {/* Hidden component specifically for printing */}
+      <div style={{ display: 'none' }}>
+        <ReportTemplate ref={reportRef} calculationData={r} dataType="frontend" leadInfo={null} />
       </div>
     </div>
   );

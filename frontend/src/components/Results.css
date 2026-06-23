@@ -307,9 +307,30 @@
   to { transform: rotate(360deg); }
 }
 
-/* Recalculate */
-.recalculate-row { display: flex; justify-content: center; margin-top: 36px; }
-.btn-recalculate { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border-default); padding: 14px 32px; }
+/* Actions Row */
+.results-actions-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.btn-recalculate {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-default);
+}
 .btn-recalculate:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
 /* Responsive */

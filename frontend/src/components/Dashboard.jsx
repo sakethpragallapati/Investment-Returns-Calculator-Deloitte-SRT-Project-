@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import {
   Search, Download, RefreshCw, Users, TrendingUp,
-  BarChart3, Briefcase, AlertCircle, Database,
+  BarChart3, Briefcase, AlertCircle, Database, Printer,
 } from 'lucide-react';
 import { fetchLeads, fetchDashboardStats, getExportCsvUrl } from '../services/api';
 import LeadDetailModal from './LeadDetailModal';
+import DashboardReportTemplate from './DashboardReportTemplate';
 import './Dashboard.css';
 
 /**
@@ -60,7 +62,7 @@ function TableSkeleton() {
 
 // ═══ Dashboard Component ═══════════════════════════
 export default function Dashboard() {
-  const [leads, setLeads] = useState([]);
+  const [allLeads, setAllLeads] = useState([]);
   const [stats, setStats] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -68,29 +70,45 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [selectedLead, setSelectedLead] = useState(null);
 
-  // Debounced search
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 350);
-    return () => clearTimeout(timer);
-  }, [search]);
+  const reportRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: reportRef,
+    documentTitle: 'Dashboard_Aggregate_Report',
+  });
 
-  const loadData = useCallback(async (searchTerm = '') => {
+  // ⚡ Instant Client-Side Search
+  const leads = useMemo(() => {
+    const lower = search.toLowerCase().trim();
+    if (!lower) return allLeads;
+    
+    return allLeads.filter(lead => {
+      const company = (lead.company || '').toLowerCase();
+      const name = (lead.name || '').toLowerCase();
+      return company.includes(lower) || name.includes(lower);
+    });
+  }, [allLeads, search]);
+
+  const loadLeads = useCallback(async () => {
     try {
       setError(null);
-      const [leadsData, statsData] = await Promise.all([
-        fetchLeads(searchTerm),
-        fetchDashboardStats(),
-      ]);
-      setLeads(leadsData.leads);
-      setStats(statsData);
+      const leadsData = await fetchLeads(''); // Always fetch all for client-side filtering
+      setAllLeads(leadsData.leads);
     } catch (err) {
-      console.error('Dashboard load error:', err);
+      console.error('Dashboard leads load error:', err);
       setError(
         err.response?.status === 0 || err.code === 'ERR_NETWORK'
           ? 'Cannot reach the backend server. Make sure uvicorn is running.'
-          : 'Failed to load dashboard data. Please try again.'
+          : 'Failed to load leads. Please try again.'
       );
+    }
+  }, []);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const statsData = await fetchDashboardStats();
+      setStats(statsData);
+    } catch (err) {
+      console.error('Dashboard stats load error:', err);
     }
   }, []);
 
@@ -98,21 +116,14 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await loadData();
+      await Promise.all([loadLeads(), loadStats()]);
       setLoading(false);
     })();
-  }, [loadData]);
-
-  // Search effect
-  useEffect(() => {
-    if (!loading) {
-      loadData(debouncedSearch);
-    }
-  }, [debouncedSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadLeads, loadStats]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadData(debouncedSearch);
+    await Promise.all([loadLeads(), loadStats()]);
     setTimeout(() => setRefreshing(false), 600);
   };
 
@@ -204,6 +215,15 @@ export default function Dashboard() {
           Refresh
         </button>
 
+        <button
+          className="btn-export"
+          onClick={() => handlePrint()}
+          title="Generate PDF Report"
+        >
+          <Printer size={15} />
+          Export PDF
+        </button>
+
         <a
           href={getExportCsvUrl()}
           className="btn-export"
@@ -288,6 +308,11 @@ export default function Dashboard() {
           onClose={() => setSelectedLead(null)}
         />
       )}
+
+      {/* Hidden component specifically for printing the aggregate report */}
+      <div style={{ display: 'none' }}>
+        <DashboardReportTemplate ref={reportRef} leads={leads} stats={stats} />
+      </div>
     </div>
   );
 }
