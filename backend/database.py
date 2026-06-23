@@ -1,9 +1,11 @@
 """
 UPEMP 2020 Capital Subsidy Calculator — Database Layer
-Uses SQLAlchemy with PostgreSQL.
+Uses SQLAlchemy with PostgreSQL (Neon DB compatible).
 """
 
 import os
+import ssl
+from dotenv import load_dotenv
 from datetime import datetime, timezone
 from sqlalchemy import (
     create_engine, Column, Integer, String, Float, Boolean,
@@ -11,12 +13,19 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import sessionmaker, relationship, DeclarativeBase
 
+load_dotenv()
+
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5432/upemp2020"
 )
 
-engine = create_engine(DATABASE_URL, echo=False)
+# Neon DB requires SSL; create engine with appropriate connect_args
+connect_args = {}
+if "neon.tech" in DATABASE_URL:
+    connect_args["sslmode"] = "require"
+
+engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

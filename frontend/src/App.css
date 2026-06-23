@@ -22,6 +22,51 @@
 }
 .header p { color: var(--text-secondary); font-size: 16px; margin-top: 8px; }
 
+/* Navigation Tabs */
+.app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 auto 32px;
+  padding: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  max-width: fit-content;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition-default);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-tab:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-tab.active {
+  color: #fff;
+  background: var(--accent-blue);
+  box-shadow: 0 2px 12px var(--accent-blue-glow);
+}
+
 /* Animation */
 .animate-in {
   animation: fadeSlideIn 0.4s ease forwards;
@@ -149,6 +194,18 @@ select option { background: var(--bg-secondary); color: var(--text-primary); }
 @media (max-width: 768px) {
   .app { padding: 0 16px 60px; }
   .header h1 { font-size: 28px; }
+  
+  .app-nav {
+    flex-wrap: wrap;
+    max-width: 100%;
+    padding: 6px;
+    gap: 6px;
+  }
+  .nav-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
   .form-grid { grid-template-columns: 1fr; }
   .card { padding: 24px 20px; }
   .nav-buttons { flex-direction: column-reverse; }

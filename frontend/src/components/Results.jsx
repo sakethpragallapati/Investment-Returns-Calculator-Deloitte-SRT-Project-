@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { fmt } from '../utils/calculator';
+import { saveLead } from '../services/api';
 import './Results.css';
 
-export default function Results({ result, onRecalculate }) {
+export default function Results({ result, formData, onRecalculate }) {
   const r = result;
 
   return (
@@ -279,6 +280,9 @@ export default function Results({ result, onRecalculate }) {
         <Disclaimer>Investors setting up units for remanufacturing, repair, or refurbishment of Electronics products in UP are eligible for all incentives under this policy.</Disclaimer>
       </div>
 
+      {/* ═══ SAVE TO DASHBOARD ═══ */}
+      <SaveToDashboard formData={formData} />
+
       {/* ═══ RECALCULATE ═══ */}
       <div className="recalculate-row">
         <button className="btn btn-recalculate" onClick={onRecalculate}>
@@ -290,6 +294,129 @@ export default function Results({ result, onRecalculate }) {
 }
 
 /* ── Reusable sub-components ── */
+
+function SaveToDashboard({ formData }) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState(null);
+  const [lead, setLead] = useState({ name: '', company: '', email: '', contactNumber: '' });
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!lead.name.trim() || !lead.company.trim() || !lead.email.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await saveLead(lead, formData);
+      setSaved(true);
+    } catch (err) {
+      console.error('Save failed:', err);
+      setError(
+        err.response?.data?.detail ||
+        (err.code === 'ERR_NETWORK'
+          ? 'Cannot reach backend. Is uvicorn running?'
+          : 'Failed to save. Please try again.')
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (saved) {
+    return (
+      <div className="save-dashboard-card success">
+        <div className="save-success-icon">✅</div>
+        <div className="save-success-text">
+          <strong>Saved to Dashboard!</strong>
+          <span>This calculation has been saved. View it on the Dashboard tab.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="save-dashboard-card">
+      <div className="save-dashboard-header" onClick={() => setOpen(!open)}>
+        <div className="save-dashboard-left">
+          <span className="save-icon">💾</span>
+          <div>
+            <div className="save-title">Save to Dashboard</div>
+            <div className="save-subtitle">Store this calculation in the database for future reference</div>
+          </div>
+        </div>
+        <div className={`save-chevron ${open ? 'open' : ''}`}>▼</div>
+      </div>
+
+      {open && (
+        <form className="save-form" onSubmit={handleSave}>
+          <div className="save-form-grid">
+            <div className="form-group">
+              <label className="form-label">Your Name *</label>
+              <input
+                type="text"
+                placeholder="e.g. Rajesh Kumar"
+                value={lead.name}
+                onChange={(e) => setLead({ ...lead, name: e.target.value })}
+                required
+                id="save-lead-name"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Company Name *</label>
+              <input
+                type="text"
+                placeholder="e.g. Acme Electronics Pvt Ltd"
+                value={lead.company}
+                onChange={(e) => setLead({ ...lead, company: e.target.value })}
+                required
+                id="save-lead-company"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email *</label>
+              <input
+                type="email"
+                placeholder="e.g. rajesh@acme.in"
+                value={lead.email}
+                onChange={(e) => setLead({ ...lead, email: e.target.value })}
+                required
+                id="save-lead-email"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Phone (optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. +91 98765 43210"
+                value={lead.contactNumber}
+                onChange={(e) => setLead({ ...lead, contactNumber: e.target.value })}
+                id="save-lead-phone"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="save-error">⚠ {error}</div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-save-dashboard"
+            disabled={saving || !lead.name.trim() || !lead.company.trim() || !lead.email.trim()}
+            id="btn-save-lead"
+          >
+            {saving ? (
+              <><span className="spinner"></span> Saving…</>
+            ) : (
+              <><span className="btn-icon">💾</span> Save Calculation</>
+            )}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
 
 function CalcStep({ num, title, result, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);

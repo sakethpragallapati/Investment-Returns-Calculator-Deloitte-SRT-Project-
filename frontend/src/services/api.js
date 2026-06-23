@@ -59,3 +59,30 @@ export async function saveLead(leadInfo, calculationInputs) {
   const { data } = await api.post('/api/save-lead', payload);
   return data;
 }
+
+
+// ─── Dashboard API ───────────────────────────────
+
+/**
+ * Fetch all leads with optional search filtering.
+ */
+export async function fetchLeads(search = '') {
+  const params = search.trim() ? { search: search.trim() } : {};
+  const { data } = await api.get('/api/leads', { params });
+  return data;
+}
+
+/**
+ * Fetch aggregate analytics for the dashboard summary cards.
+ */
+export async function fetchDashboardStats() {
+  const { data } = await api.get('/api/dashboard-stats');
+  return data;
+}
+
+/**
+ * Get the full URL for the CSV export endpoint (for direct download).
+ */
+export function getExportCsvUrl() {
+  return `${API_BASE}/api/export-csv`;
+}
